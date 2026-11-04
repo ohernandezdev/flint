@@ -1,448 +1,1521 @@
-<title>Flint — Bootable USB creator for macOS</title>
+<!doctype html>
+<!-- Design pass informed by unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flint · Bootable Windows and Linux USB maker for Mac</title>
+<meta name="description" content="Free, open-source Mac app that turns a Windows or Linux ISO into a bootable USB drive. It only lists external, removable drives, so your Mac’s own disk is never in the list.">
+<link rel="canonical" href="https://ohernandezdev.github.io/flint/">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f7fa">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0d14">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/icon-256.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flint">
+<meta property="og:title" content="Flint for Mac">
+<meta property="og:description" content="Free, open-source Mac app that turns a Windows or Linux ISO into a bootable USB drive. It only lists external, removable drives, so your Mac’s own disk is never in the list.">
+<meta property="og:url" content="https://ohernandezdev.github.io/flint/">
+<meta property="og:image" content="https://ohernandezdev.github.io/flint/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Flint for Mac">
+<meta name="twitter:description" content="Free, open-source Mac app that turns a Windows or Linux ISO into a bootable USB drive. It only lists external, removable drives, so your Mac’s own disk is never in the list.">
+<meta name="twitter:image" content="https://ohernandezdev.github.io/flint/assets/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Flint",
+  "operatingSystem": "macOS 13 or later",
+  "applicationCategory": "UtilitiesApplication",
+  "softwareVersion": "1.0.0",
+  "description": "Free, open-source Mac app that turns a Windows or Linux ISO into a bootable USB drive. It only lists external, removable drives, so your Mac’s own disk is never in the list.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "downloadUrl": "https://github.com/ohernandezdev/flint/releases/latest",
+  "url": "https://ohernandezdev.github.io/flint/"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 <style>
   :root {
-    --canvas: #FAFAFA;
-    --surface1: #FFFFFF;
-    --surface2: #F5F5F5;
-    --hairline: rgba(0,0,0,0.14);
-    --hairline-strong: rgba(0,0,0,0.18);
-    --ink: #171717;
-    --ink-muted: #4D4D4D;
-    --ink-subtle: #8F8F8F;
-    --on-primary: #FFFFFF;
-    --link: #0070F3;
-    --warning: #F5A623;
-    --error: #EE0000;
-    --shadow-contact: rgba(0,0,0,0.05);
-    --shadow-diffuse: rgba(0,0,0,0.08);
-    --code-bg: #F5F5F5;
+    --deepest: #eceff4;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --raised: #eceff4;
+    --line: rgba(17,24,39,0.08);
+    --line-strong: rgba(17,24,39,0.14);
+    --text: #111827;
+    --text2: #4b5565;
+    --muted: #5d6678;
+    --accent: #0062d6;
+    --on-accent: #ffffff;
+    --danger: #dc2626;
+    --positive: #16a34a;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --app-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Geist", sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --canvas: #000000;
-      --surface1: #0A0A0A;
-      --surface2: #1A1A1A;
-      --hairline: rgba(255,255,255,0.14);
-      --hairline-strong: rgba(255,255,255,0.18);
-      --ink: #EDEDED;
-      --ink-muted: #A1A1A1;
-      --ink-subtle: #8A8A8A;
-      --on-primary: #0A0A0A;
-      --link: #3291FF;
-      --warning: #F7B955;
-      --error: #FF6166;
-      --shadow-contact: rgba(0,0,0,0.6);
-      --shadow-diffuse: rgba(0,0,0,0.45);
-      --code-bg: #1A1A1A;
+      --deepest: #07080d; --bg: #0b0d14; --card: #11141c; --raised: #1a1e28;
+      --line: rgba(238,240,245,0.08); --line-strong: rgba(238,240,245,0.14);
+      --text: #eef0f5; --text2: #a3a9b8; --muted: #8a92a6;
+      --accent: #3291ff; --on-accent: #07080d; --danger: #e5484d; --positive: #4cc38a;
     }
   }
   :root[data-theme="dark"] {
-    --canvas: #000000; --surface1: #0A0A0A; --surface2: #1A1A1A;
-    --hairline: rgba(255,255,255,0.14); --hairline-strong: rgba(255,255,255,0.18);
-    --ink: #EDEDED; --ink-muted: #A1A1A1; --ink-subtle: #8A8A8A;
-    --on-primary: #0A0A0A; --link: #3291FF; --warning: #F7B955; --error: #FF6166;
-    --shadow-contact: rgba(0,0,0,0.6); --shadow-diffuse: rgba(0,0,0,0.45); --code-bg: #1A1A1A;
+    --deepest: #07080d; --bg: #0b0d14; --card: #11141c; --raised: #1a1e28;
+    --line: rgba(238,240,245,0.08); --line-strong: rgba(238,240,245,0.14);
+    --text: #eef0f5; --text2: #a3a9b8; --muted: #8a92a6;
+    --accent: #3291ff; --on-accent: #07080d; --danger: #e5484d; --positive: #4cc38a;
   }
   :root[data-theme="light"] {
-    --canvas: #FAFAFA; --surface1: #FFFFFF; --surface2: #F5F5F5;
-    --hairline: rgba(0,0,0,0.14); --hairline-strong: rgba(0,0,0,0.18);
-    --ink: #171717; --ink-muted: #4D4D4D; --ink-subtle: #8F8F8F;
-    --on-primary: #FFFFFF; --link: #0070F3; --warning: #F5A623; --error: #EE0000;
-    --shadow-contact: rgba(0,0,0,0.05); --shadow-diffuse: rgba(0,0,0,0.08); --code-bg: #F5F5F5;
+    --deepest: #eceff4; --bg: #f5f7fa; --card: #ffffff; --raised: #eceff4;
+    --line: rgba(17,24,39,0.08); --line-strong: rgba(17,24,39,0.14);
+    --text: #111827; --text2: #4b5565; --muted: #5d6678;
+    --accent: #0062d6; --on-accent: #ffffff; --danger: #dc2626; --positive: #16a34a;
   }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--canvas);
-    color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.5;
-  }
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  a:focus-visible, button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
-
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-
-  /* ---- Nav ---- */
-  .nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--hairline);
-  }
-  .nav .wrap { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; letter-spacing: -0.2px; }
-  .brand img { width: 22px; height: 22px; border-radius: 6px; }
-  .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; color: var(--ink-muted); }
-  .nav-links a { color: var(--ink-muted); }
-  .nav-links a:hover { color: var(--ink); }
-
-  /* ---- Hero ---- */
-  .hero { padding: 96px 0 64px; text-align: center; }
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 500; color: var(--ink-muted);
-    background: var(--surface2); border: 1px solid var(--hairline);
-    padding: 5px 12px; border-radius: 999px; margin-bottom: 24px;
-  }
-  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--link); }
-  h1.display {
-    font-size: 56px; font-weight: 600; letter-spacing: -1.6px; line-height: 1.05;
-    margin: 0 0 20px; text-wrap: balance;
-  }
-  .hero p.lede {
-    font-size: 19px; color: var(--ink-muted); max-width: 560px; margin: 0 auto 36px;
-    line-height: 1.55;
-  }
-  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 14px; font-weight: 600; letter-spacing: -0.1px;
-    padding: 11px 20px; border-radius: 6px; border: 1px solid transparent;
-    cursor: pointer; min-height: 40px;
-  }
-  .btn-primary {
-    background: var(--ink); color: var(--on-primary);
-    box-shadow: 0 2px 6px var(--shadow-diffuse);
-  }
-  .btn-primary:hover { opacity: 0.92; text-decoration: none; }
-  .btn-secondary {
-    background: var(--surface1); color: var(--ink); border-color: var(--hairline-strong);
-  }
-  .btn-secondary:hover { background: var(--surface2); text-decoration: none; }
-  .hero-meta { font-size: 12.5px; color: var(--ink-subtle); }
-
-  /* ---- Hero screenshot ---- */
-  .hero-shot {
-    margin-top: 56px; position: relative;
-  }
-  .hero-shot img {
-    width: 100%; max-width: 860px; display: block; margin: 0 auto;
-    border-radius: 10px; border: 1px solid var(--hairline);
-    box-shadow: 0 1px 1px var(--shadow-contact), 0 20px 40px -12px var(--shadow-diffuse);
-  }
-
-  /* ---- Why I built this ---- */
-  .why-card {
-    max-width: 640px; margin: 56px auto 0; padding: 20px 24px;
-    border-left: 2px solid var(--link); background: var(--surface1);
-    border-radius: 0 10px 10px 0; text-align: left;
-  }
-  .why-copy { font-size: 14.5px; color: var(--ink-muted); line-height: 1.65; margin: 0; }
-
-  /* ---- Section shell ---- */
-  section { padding: 88px 0; }
-  section.alt { background: var(--surface1); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
-  .section-head { max-width: 640px; margin: 0 0 48px; }
-  .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
-  .kicker { font-size: 13px; font-weight: 600; color: var(--link); letter-spacing: -0.1px; margin: 0 0 10px; }
-  h2.headline { font-size: 32px; font-weight: 600; letter-spacing: -0.9px; margin: 0 0 12px; text-wrap: balance; }
-  .section-head p { font-size: 16px; color: var(--ink-muted); margin: 0; line-height: 1.6; }
-
-  /* ---- How it works: step cards with screenshots ---- */
-  .steps {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-  }
-  .step-card {
-    background: var(--surface1); border: 1px solid var(--hairline); border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 1px var(--shadow-contact), 0 10px 24px -8px var(--shadow-diffuse);
-  }
-  .step-card img { width: 100%; display: block; border-bottom: 1px solid var(--hairline); }
-  .step-card .step-body { padding: 16px; }
-  .step-num { font-size: 12px; font-weight: 600; color: var(--ink-subtle); letter-spacing: -0.1px; margin-bottom: 6px; }
-  .step-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; margin: 0 0 4px; }
-  .step-desc { font-size: 13px; color: var(--ink-muted); margin: 0; line-height: 1.5; }
-
-  /* ---- Feature grid ---- */
-  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .feature-card {
-    background: var(--surface1); border: 1px solid var(--hairline); border-radius: 10px;
-    padding: 24px; box-shadow: 0 1px 1px var(--shadow-contact), 0 10px 24px -8px var(--shadow-diffuse);
-  }
-  .feature-icon {
-    width: 36px; height: 36px; border-radius: 8px; background: var(--surface2);
-    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
-    border: 1px solid var(--hairline);
-    color: var(--ink);
-  }
-  .feature-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .feature-title { font-size: 15.5px; font-weight: 600; letter-spacing: -0.2px; margin: 0 0 8px; }
-  .feature-desc { font-size: 13.5px; color: var(--ink-muted); margin: 0; line-height: 1.55; }
-
-  /* ---- Safety / architecture section ---- */
-  .safety-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: start; }
-  .safeguard-list { display: flex; flex-direction: column; gap: 4px; }
-  .safeguard {
-    display: flex; gap: 14px; padding: 16px 0;
-    border-bottom: 1px solid var(--hairline);
-  }
-  .safeguard:last-child { border-bottom: none; }
-  .safeguard-tag {
-    flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--ink-muted);
-    background: var(--surface2); border: 1px solid var(--hairline);
-    padding: 3px 8px; border-radius: 6px; height: fit-content;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 26px;
     font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  .safeguard-copy { font-size: 14px; color: var(--ink-muted); line-height: 1.55; }
-  .safeguard-copy b { color: var(--ink); font-weight: 600; }
+  img, svg, video, canvas { display: block; max-width: 100%; }
+  [hidden] { display: none; }
+  h1, h2, h3, p, ul, ol, figure { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  section[id], #film { scroll-margin-top: 64px; }
 
-  .arch-diagram {
-    background: var(--surface1); border: 1px solid var(--hairline); border-radius: 10px;
-    padding: 28px 20px;
-    box-shadow: 0 1px 1px var(--shadow-contact), 0 10px 24px -8px var(--shadow-diffuse);
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
-  .arch-box {
-    border: 1px solid var(--hairline-strong); border-radius: 8px; padding: 12px 16px;
-    font-size: 13px; font-weight: 600; letter-spacing: -0.1px; text-align: center;
-    background: var(--surface2);
+  .skip { position: absolute; left: 16px; top: -48px; z-index: 100; background: var(--card); color: var(--text); padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line-strong); }
+  .skip:focus { top: 8px; }
+
+  .i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .i-fill { width: 18px; height: 18px; flex: none; fill: currentColor; }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .narrow { max-width: 720px; }
+  .mono { font-family: var(--mono); font-size: 12px; line-height: 16px; letter-spacing: 0.01em; }
+  .muted { color: var(--muted); }
+  .label { font-size: 14px; line-height: 22px; font-weight: 500; color: var(--muted); margin-bottom: 12px; }
+
+  h2 { text-wrap: balance; }
+  h1 { font-size: 64px; line-height: 66px; font-weight: 500; letter-spacing: -0.03em; }
+  h2 { font-size: 40px; line-height: 44px; font-weight: 500; letter-spacing: -0.02em; }
+  h3 { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .lede { font-size: 19px; line-height: 30px; color: var(--text2); max-width: 34rem; }
+  .small { font-size: 14px; line-height: 22px; }
+
+  .section { padding: 128px 0; }
+  .sec-head { margin-bottom: 48px; }
+  .sec-head p.sub { color: var(--text2); max-width: 36rem; margin-top: 16px; }
+
+  /* Buttons and chips */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 20px; border-radius: 10px; border: 1px solid transparent;
+    font-size: 15px; font-weight: 500; line-height: 20px; cursor: pointer; text-decoration: none;
+    transition: background-color 160ms var(--ease), color 160ms var(--ease), border-color 160ms var(--ease), transform 160ms var(--ease);
   }
-  .arch-box.priv { background: var(--ink); color: var(--on-primary); border-color: var(--ink); }
-  .arch-arrow { text-align: center; font-size: 12px; color: var(--ink-subtle); padding: 8px 0; font-family: ui-monospace, monospace; }
-  .arch-caption { font-size: 12px; color: var(--ink-subtle); text-align: center; margin-top: 14px; line-height: 1.5; }
-
-  /* ---- Comparison table ---- */
-  .compare-wrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 10px; box-shadow: 0 1px 1px var(--shadow-contact), 0 10px 24px -8px var(--shadow-diffuse); }
-  table.compare { width: 100%; border-collapse: collapse; background: var(--surface1); font-size: 13.5px; min-width: 620px; }
-  table.compare th, table.compare td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--hairline); }
-  table.compare th { font-weight: 600; color: var(--ink-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-  table.compare td:not(:first-child), table.compare th:not(:first-child) { text-align: center; }
-  table.compare tr:last-child td { border-bottom: none; }
-  table.compare tr.highlight td { background: var(--surface2); }
-  table.compare td:first-child { font-weight: 600; }
-  .yes { color: var(--link); font-weight: 700; }
-  .no { color: var(--ink-subtle); }
-
-  /* ---- Final CTA ---- */
-  .final-cta { text-align: center; padding: 88px 0 96px; }
-  .final-cta h2 { font-size: 34px; font-weight: 600; letter-spacing: -1px; margin: 0 0 14px; text-wrap: balance; }
-  .final-cta p { font-size: 16px; color: var(--ink-muted); margin: 0 0 32px; }
-
-  /* ---- Footer ---- */
-  footer { border-top: 1px solid var(--hairline); padding: 32px 0; }
-  footer .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-  .foot-links { display: flex; gap: 20px; font-size: 13px; color: var(--ink-muted); }
-  .foot-links a { color: var(--ink-muted); }
-  .foot-links a:hover { color: var(--ink); }
-  .foot-copy { font-size: 12.5px; color: var(--ink-subtle); }
-
-  @media (max-width: 860px) {
-    .steps { grid-template-columns: repeat(2, 1fr); }
-    .features { grid-template-columns: 1fr 1fr; }
-    .safety-grid { grid-template-columns: 1fr; }
-    h1.display { font-size: 38px; letter-spacing: -1px; }
+  .btn:hover { text-decoration: none; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--accent); background: color-mix(in srgb, var(--accent) 88%, var(--text)); }
+  .btn-secondary { background: var(--card); color: var(--text); border-color: var(--line-strong); }
+  .btn-secondary:hover { background: var(--raised); }
+  .btn-sm { height: 36px; padding: 0 12px; font-size: 14px; }
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 12px; line-height: 16px; letter-spacing: 0.01em;
+    padding: 4px 8px; border-radius: 6px; background: var(--raised); color: var(--text2);
+    border: 1px solid var(--line);
   }
-  @media (max-width: 560px) {
-    .steps { grid-template-columns: 1fr; }
-    .features { grid-template-columns: 1fr; }
+
+  /* Nav */
+  .nav { position: sticky; top: 0; z-index: 50; background: var(--bg); background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--text); }
+  .brand:hover { text-decoration: none; }
+  .brand img { width: 24px; height: 24px; border-radius: 6px; }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a { color: var(--text2); font-size: 14px; transition: color 160ms var(--ease); }
+  .nav-links a:hover { color: var(--text); text-decoration: none; }
+  .nav-right { display: flex; align-items: center; gap: 24px; }
+
+  /* Hero */
+  .hero { min-height: calc(100svh - 64px); display: flex; align-items: center; padding: 48px 0; }
+  .hero > .wrap { width: 100%; }
+  .hero h1 { max-width: 16ch; text-wrap: balance; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 48px; align-items: center; }
+  .hero .lede { margin-top: 24px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hero-meta { margin-top: 24px; color: var(--muted); }
+  .stick-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .stick { position: relative; width: 100%; aspect-ratio: 4 / 3; }
+  .stick-img { width: 100%; height: 100%; object-fit: contain; }
+  .stick-canvas { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stick.is-3d .stick-canvas { display: block; }
+  .stick.is-3d .stick-img { display: none; }
+  .stick.is-missing .stick-img { display: none; }
+
+  /* Why */
+  .why { padding: 128px 0; }
+  .why-text { font-size: 24px; line-height: 38px; font-weight: 400; letter-spacing: -0.01em; color: var(--text); }
+  .why-text .w { display: inline; }
+  .signoff { margin-top: 32px; }
+
+  /* Mac window frame (film) */
+  .mac { background: var(--card); border: 1px solid var(--line-strong); border-radius: 14px; overflow: hidden; box-shadow: 0 32px 64px -32px rgba(0,0,0,0.35); }
+  .mac-bar { display: flex; align-items: center; height: 36px; padding: 0 12px; background: var(--raised); border-bottom: 1px solid var(--line); position: relative; }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .lights i:nth-child(1) { background: #ff5f57; }
+  .lights i:nth-child(2) { background: #febc2e; }
+  .lights i:nth-child(3) { background: #28c840; }
+    .film-frame { transform-origin: 50% 100%; background: #0b0d14; border: 1px solid var(--line-strong); border-radius: 16px; overflow: hidden; }
+  .film-screen { position: relative; aspect-ratio: 16 / 9; background: #0b0d14; }
+  .film-screen video { width: 100%; height: 100%; object-fit: cover; background: #0b0d14; }
+  .film-frame.is-missing video { display: none; }
+  .film-ctl { position: absolute; right: 16px; bottom: 16px; }
+  .film-frame.is-missing .film-ctl { display: none; }
+
+  /* How it works */
+  .how-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; align-items: center; }
+  .steps { grid-column: span 5; }
+  .how-stage { grid-column: span 7; }
+  .step { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 8px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step .num { color: var(--muted); padding-top: 4px; }
+  .step h3 { font-size: 20px; line-height: 28px; transition: color 160ms var(--ease); }
+  .step p { margin-top: 4px; color: var(--text2); font-size: 14px; line-height: 22px; transition: opacity 160ms var(--ease); }
+  .step-shot { grid-column: 2; margin-top: 16px; }
+  .how--pin .step h3 { color: var(--muted); }
+  .how--pin .step.is-active h3 { color: var(--text); }
+  .how--pin .step p { opacity: 0; }
+  .how--pin .step.is-active p { opacity: 1; }
+  .how--pin .step-shot { display: none; }
+  .how--static .how-stage { display: none; }
+  .how-stage { min-width: 0; }
+
+  /* App window (always the app's light look) */
+  .app {
+    container-type: inline-size;
+    width: 100%; background: #f6f6f6; color: #1d1d1f; font-family: var(--app-font);
+    border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 32px 64px -32px rgba(0,0,0,0.45);
+    font-variant-numeric: tabular-nums; text-align: left;
+  }
+  .app-title { display: flex; align-items: center; height: 28px; padding: 0 12px; background: #ececec; border-bottom: 1px solid rgba(0,0,0,0.10); position: relative; }
+  .app-title span.t { position: absolute; left: 0; right: 0; text-align: center; font-size: 13px; line-height: 28px; color: #4a4a4f; pointer-events: none; }
+  .app-head { display: flex; align-items: center; gap: 12px; padding: 16px 24px 0; }
+  .app-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; line-height: 24px; padding-right: 12px; border-right: 1px solid rgba(0,0,0,0.14); }
+  .app .i { width: 16px; height: 16px; }
+  .stepper { display: flex; align-items: center; flex: 1; min-width: 0; gap: 8px; }
+  .st { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; font-size: 13px; line-height: 20px; color: #8e8e93; }
+  .st:last-child { flex: none; }
+  .st .dot { position: relative; width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; border: 1.5px solid #c7c7cc; color: #8e8e93; background: #f0f0f2; transition: background-color 160ms var(--ease), color 160ms var(--ease), border-color 160ms var(--ease); }
+  .st .dot .i { display: none; width: 14px; height: 14px; stroke-width: 2.5; }
+  .st .ln { flex: 1; height: 2px; min-width: 8px; background: #d1d1d6; transition: background-color 160ms var(--ease); }
+  .st:last-child .ln { display: none; }
+  .st[data-state="current"] { color: #111; font-weight: 600; }
+  .st[data-state="current"] .dot { background: #111; border-color: #111; color: #fff; }
+  .st[data-state="done"] { color: #1d1d1f; }
+  .st[data-state="done"] .dot { background: #111; border-color: #111; color: #fff; }
+  .st[data-state="done"] .dot .n { display: none; }
+  .st[data-state="done"] .dot .i { display: block; }
+  .st[data-state="done"] .ln { background: #111; }
+  .app-lang { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; line-height: 20px; color: #3a3a3c; white-space: nowrap; }
+  .screens { display: block; padding: 16px 24px 24px; }
+  .screens .screen { display: none; }
+  .screens .screen:first-child, .screens .screen.is-shown { display: flex; }
+  .how--pin .screens { display: grid; }
+  .how--pin .screens .screen { display: flex; grid-area: 1 / 1; }
+  .screen { flex-direction: column; min-height: 304px; gap: 12px; backface-visibility: hidden; }
+  .s-title { font-size: 26px; line-height: 32px; font-weight: 700; color: #1d1d1f; }
+  .s-sub { font-size: 14px; line-height: 20px; color: #6e6e73; margin-top: -4px; }
+  .s-card { background: #fff; border: 1px solid rgba(0,0,0,0.10); border-radius: 10px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .s-row { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 20px; }
+  .s-row + .s-row { margin-top: 12px; }
+  .s-row .i { color: #6e6e73; }
+  .s-row .i.blue { color: #0a7cff; }
+  .s-file { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 20px; font-weight: 500; }
+  .s-file a { margin-left: auto; color: #0a7cff; font-weight: 400; pointer-events: none; }
+  .s-actions { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; }
+  .s-actions.end { justify-content: flex-end; }
+  .s-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 600; background: #111; color: #fff; white-space: nowrap; }
+  .s-btn.text { background: transparent; color: #1d1d1f; padding: 0 8px; }
+  .s-btn.red { background: #e5352b; transition: opacity 160ms var(--ease); }
+  .s-btn.red[data-disabled] { opacity: 0.45; }
+  .tile { width: 40px; height: 40px; border-radius: 10px; background: #f0f0f2; display: grid; place-items: center; flex: none; }
+  .tile .i { width: 20px; height: 20px; }
+  .tile.red .i { color: #e5352b; }
+  .tile.red { background: transparent; }
+  .drv-name { font-size: 15px; line-height: 20px; font-weight: 600; }
+  .drv-meta { font-family: var(--mono); font-size: 12px; line-height: 16px; color: #6e6e73; }
+  .radio { margin-left: auto; width: 18px; height: 18px; border-radius: 50%; background: #0a7cff; display: grid; place-items: center; flex: none; }
+  .radio::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .warn { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 20px; font-weight: 600; }
+  .warn .i { color: #e5352b; }
+  .field { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 20px; color: #3a3a3c; flex-wrap: wrap; }
+  .field .input { background: #fff; border: 1px solid rgba(0,0,0,0.14); border-radius: 8px; padding: 6px 12px; min-width: 128px; color: #1d1d1f; }
+  .field .count { color: #8e8e93; }
+  .check-row { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 20px; }
+  .check-row b { font-weight: 600; }
+  .cb { width: 16px; height: 16px; flex: none; margin-top: 2px; border: 1.5px solid #8e8e93; border-radius: 4px; display: grid; place-items: center; background: #fff; transition: background-color 160ms var(--ease), border-color 160ms var(--ease); }
+  .cb .i { width: 12px; height: 12px; color: #fff; stroke-width: 3; opacity: 0; transition: opacity 160ms var(--ease); }
+  .cb.is-checked { background: #0a7cff; border-color: #0a7cff; }
+  .cb.is-checked .i { opacity: 1; }
+  .bar { height: 6px; border-radius: 3px; background: #e5e5ea; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #111; transform-origin: 0 50%; transform: scaleX(0.09); border-radius: 3px; }
+  .bar.copy i { transform: scaleX(0.18); }
+  .status { font-size: 13px; line-height: 20px; color: #3a3a3c; min-height: 20px; }
+  .phases li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; column-gap: 8px; align-items: center; font-size: 14px; line-height: 20px; }
+  .phases li + li { margin-top: 8px; }
+  .ph-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #c7c7cc; display: grid; place-items: center; margin-left: 2px; }
+  .ph-dot .i { display: none; width: 9px; height: 9px; color: #fff; stroke-width: 3.5; }
+  .phases li[data-state="future"] { color: #8e8e93; }
+  .phases li[data-state="active"] .ph-dot { border-color: #8e8e93 #8e8e93 transparent #8e8e93; }
+  .phases li[data-state="done"] .ph-dot { background: #0a7cff; border-color: #0a7cff; }
+  .phases li[data-state="done"] .ph-dot .i { display: block; }
+  .ph-body { grid-column: 2 / 4; }
+  .ph-sub { font-family: var(--mono); font-size: 12px; line-height: 16px; color: #3a3a3c; margin-top: 4px; }
+  .phases li[data-state="future"] .ph-sub { visibility: hidden; }
+  .ph-bar { margin-top: 8px; }
+  .ph-pct { font-size: 13px; color: #3a3a3c; }
+  .st .lbl { white-space: nowrap; }
+  @media (min-width: 960px) {
+    .how--static .how-grid { display: block; }
+    .how--static .step { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; align-items: center; padding: 32px 0; }
+    .how--static .step .num { grid-column: 1; }
+    .how--static .step > div:nth-child(2) { grid-column: 2 / 6; }
+    .how--static .step .step-shot { grid-column: 6 / 13; margin-top: 0; max-width: 640px; }
+  }
+  @container (max-width: 560px) {
+    .st:not([data-state="current"]) .lbl { display: none; }
+    .app-head { padding: 12px 16px 0; gap: 8px; }
+    .st[data-state="current"] { flex: none; }
+    .screens { padding: 12px 16px 16px; }
+    .s-title { font-size: 20px; line-height: 26px; }
+    .app-brand { font-size: 14px; padding-right: 8px; }
+  }
+  @container (max-width: 420px) {
+    .app-lang .lbl { display: none; }
+    .app-brand .t { display: none; }
+  }
+
+  /* Features */
+  .bento { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .bento-item { min-width: 0; }
+  .bento-item.a { grid-column: span 2; }
+  .card { height: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+  .card .i { color: var(--text2); margin-bottom: 16px; }
+  .card h3 { font-size: 18px; line-height: 26px; }
+  .card p { margin-top: 8px; color: var(--text2); font-size: 14px; line-height: 22px; }
+  .mini-table { margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg); }
+  .mini-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 12px 16px; font-family: var(--mono); font-size: 12px; line-height: 16px; letter-spacing: 0.01em; color: var(--text2); }
+  .mini-row + .mini-row { border-top: 1px solid var(--line); }
+  .mini-row span:first-child { color: var(--text); overflow-wrap: anywhere; }
+  .mini-row span:last-child { overflow-wrap: anywhere; }
+
+  /* Safety */
+  .safety-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; }
+  .cap { color: var(--muted); font-size: 14px; line-height: 22px; margin-bottom: 16px; }
+  .slab-list li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 12px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; font-family: var(--mono); font-size: 12px; line-height: 16px; letter-spacing: 0.01em; }
+  .slab-list li + li { margin-top: 8px; }
+  .slab-list .lab { overflow-wrap: anywhere; min-width: 0; }
+  .slab-list li.is-out { color: var(--muted); }
+  .slab-list li.is-out .lab { text-decoration: line-through; }
+  .slab-list li.is-listed { border-color: var(--accent); color: var(--text); }
+  .slab-list li.is-listed .chip { color: var(--accent); border-color: var(--accent); }
+  .safety--pin .slab-list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .stack-stage { display: none; position: relative; height: 300px; perspective: 1400px; }
+  .safety--pin .stack-stage { display: block; }
+  .stack { position: relative; width: 100%; max-width: 520px; height: 292px; margin: 0 auto; transform-style: preserve-3d; }
+  .slab { position: absolute; left: 0; right: 0; top: 0; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; background: var(--card); border: 1px solid var(--line-strong); border-radius: 12px; font-family: var(--mono); font-size: 12px; line-height: 16px; letter-spacing: 0.01em; color: var(--text); transition: border-color 160ms var(--ease); }
+  .slab .lab { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slab.is-struck .lab { text-decoration: line-through; color: var(--muted); }
+  .slab .tag { flex: none; }
+  .slab .tag.danger { color: var(--danger); border-color: var(--danger); }
+  .slab.is-listed { border-color: var(--accent); }
+  .slab.is-listed .chip { color: var(--accent); border-color: var(--accent); }
+  .sg-list li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid transparent; border-radius: 12px; transition: border-color 160ms var(--ease), background-color 160ms var(--ease); }
+  .sg-list li .chip { height: 24px; align-self: start; text-align: center; padding: 4px 0; transition: color 160ms var(--ease), border-color 160ms var(--ease); }
+  .sg-list h3 { font-size: 16px; }
+  .sg-list p { margin-top: 4px; color: var(--text2); font-size: 14px; line-height: 22px; }
+  .safety--pin .sg-list li.is-active { border-color: var(--line-strong); background: var(--card); }
+  .safety--pin .sg-list li.is-active .chip { color: var(--accent); }
+
+  .arch { margin-top: 96px; }
+  .arch-stage { position: relative; max-width: 560px; margin: 0 auto; }
+  .arch-iso { display: flex; flex-direction: column; align-items: stretch; }
+  .plane { padding: 24px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--card); }
+  .plane strong { display: block; font-family: var(--mono); font-size: 16px; line-height: 24px; font-weight: 500; }
+  .plane span { display: block; font-size: 14px; line-height: 22px; color: var(--text2); margin-top: 4px; }
+  .plane.helper { background: var(--text); border-color: var(--text); }
+  .plane.helper strong { color: var(--bg); }
+  .plane.helper span { color: var(--bg); opacity: 0.8; }
+  .xpc { position: relative; display: flex; align-items: center; justify-content: center; height: 64px; }
+  .xpc-line { position: absolute; left: 50%; top: 0; width: 2px; height: 64px; margin-left: -1px; background: var(--accent); display: block; }
+  .xpc-label { position: relative; padding: 4px 8px; background: var(--bg); color: var(--text2); }
+  .arch-cap { margin-top: 24px; max-width: 36rem; color: var(--text2); font-size: 14px; line-height: 22px; margin-left: auto; margin-right: auto; text-align: center; }
+
+  /* Compare */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--card); transform-origin: 50% 0; }
+  table { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+  th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  thead th { font-weight: 500; color: var(--muted); font-size: 14px; }
+  tbody th { font-weight: 500; color: var(--text); }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+  td { color: var(--text2); }
+  .col-flint { background: var(--raised); }
+  .ck { width: 16px; height: 16px; color: var(--accent); stroke-width: 2; }
+  .dash { width: 16px; height: 16px; color: var(--muted); }
+  .foot { margin-top: 16px; color: var(--muted); font-size: 13px; line-height: 20px; max-width: 44rem; }
+
+  /* FAQ */
+  .faq-list { max-width: 760px; }
+  details { border-top: 1px solid var(--line); }
+  details:last-child { border-bottom: 1px solid var(--line); }
+  summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; cursor: pointer; font-size: 18px; line-height: 26px; font-weight: 500; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary .i { color: var(--muted); transition: transform 160ms var(--ease); }
+  details[open] summary .i { transform: rotate(180deg); }
+  details .ans { padding: 0 32px 24px 0; color: var(--text2); max-width: 40rem; }
+  details .ans p + p { margin-top: 8px; }
+
+  /* Final */
+  .final { padding: 0 0 128px; }
+  .final-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 64px; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+  .final-card h2 { text-wrap: balance; }
+  .final-card h2 .w { display: inline-block; }
+  .final-card p.t { margin-top: 16px; color: var(--text2); }
+  .final-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .final-meta { margin-top: 16px; color: var(--muted); grid-column: 1 / -1; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 48px 0; }
+  .foot-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: center; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; }
+  .foot-links a { color: var(--text2); }
+  .foot-links a:hover { color: var(--text); }
+  .foot-line { width: 100%; color: var(--muted); font-size: 14px; line-height: 22px; }
+
+  /* Responsive */
+  @media (max-width: 959px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .how-grid { display: block; }
+    .steps, .how-stage { grid-column: auto; }
+    .safety-grid { grid-template-columns: minmax(0, 1fr); }
+    .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .final-card { grid-template-columns: minmax(0, 1fr); padding: 40px; }
+  }
+  @media (max-width: 719px) {
+    .nav-links { display: none; }
+  }
+  @media (max-width: 639px) {
+    .wrap { padding: 0 16px; }
+    .section, .why { padding: 80px 0; }
+    .final { padding-bottom: 80px; }
+    h1 { font-size: 40px; line-height: 44px; }
+    h2 { font-size: 30px; line-height: 34px; }
+    .hero { padding: 48px 0 64px; }
+    .why-text { font-size: 20px; line-height: 32px; }
+    .bento { grid-template-columns: minmax(0, 1fr); }
+    .bento-item.a { grid-column: auto; }
+    .mini-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .card { padding: 24px; }
+    .final-card { padding: 24px; }
+    .step { grid-template-columns: 32px minmax(0, 1fr); }
+    .nav-right { gap: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn, .step h3, .step p, .st .dot, .st .ln, summary .i, .slab, .sg-list li { transition: none; }
   }
 </style>
+</head>
+<body id="top">
 
-<nav class="nav">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-shield-alert" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-drive" viewBox="0 0 24 24"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><path d="M6 16h.01"/><path d="M10 16h.01"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4 7V4a2 2 0 0 1 2-2h8l6 6v12a2 2 0 0 1-2 2h-4"/><circle cx="7" cy="16" r="3"/><path d="m9.2 18.2 1.8 1.8"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="m16 3-2 18"/></symbol>
+    <symbol id="i-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4v16l14-8z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14"/><path d="M16 5v14"/></symbol>
+    <symbol id="i-github" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+  </defs>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
   <div class="wrap">
-    <div class="brand">
-      <img src="assets/icon.png" alt="" />
-      Flint
-    </div>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#safety">Safety</a>
-      <a href="#compare">Compare</a>
-      <a href="https://github.com/ohernandezdev/flint">GitHub ↗</a>
-    </div>
-  </div>
-</nav>
-
-<header class="hero">
-  <div class="wrap">
-    <span class="eyebrow"><span class="dot"></span> Open source · GPLv3</span>
-    <h1 class="display">A bootable USB, made<br />without touching Terminal.</h1>
-    <p class="lede">Flint turns a Windows or Linux ISO into a bootable USB on macOS — with a disk whitelist that makes it structurally impossible to erase the wrong drive.</p>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/ohernandezdev/flint/releases/latest">Download for macOS</a>
-      <a class="btn btn-secondary" href="#how">See how it works</a>
-    </div>
-    <div class="hero-meta">macOS 13+ · Universal (Apple Silicon &amp; Intel) · Signed &amp; notarized</div>
-
-    <div class="hero-shot">
-      <img src="assets/windows-detected.png" alt="Flint detecting a Windows 11 ISO" />
-    </div>
-
-    <div class="why-card">
-      <p class="why-copy">I bought a new PC to build and needed a bootable Windows USB from a Mac. The choices were paying for one of the few macOS tools that do this, or trusting an unverified binary from a random site — for a tool that formats a disk and runs as root, neither sat right. There wasn't a free, open, and safe option, so I built the one I wanted. Writing it solo was realistic because most of the implementation happened alongside an AI coding agent — the kind of tool-assisted development that's only become practical the last couple of years.</p>
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="24" height="24"><span>Flint</span></a>
+    <div class="nav-right">
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#safety">Safety</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="btn btn-secondary btn-sm" href="https://github.com/ohernandezdev/flint"><svg class="i-fill" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-github"/></svg>Star on GitHub</a>
     </div>
   </div>
 </header>
 
-<section id="how">
-  <div class="wrap">
-    <div class="section-head center">
-      <p class="kicker">How it works</p>
-      <h2 class="headline">Four steps. No terminal, no guessing.</h2>
-      <p>Flint inspects the ISO's boot structure and picks the right strategy automatically — FAT32 copy for Windows, raw byte-for-byte write for Linux.</p>
+<main id="main">
+
+<!-- Hero -->
+<section class="hero" id="hero" aria-labelledby="hero-h">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1 id="hero-h">Make a bootable USB on your Mac, without risking the wrong disk</h1>
+      <p class="lede">Flint writes Windows and Linux installers to a USB stick. Its drive list only shows external, removable drives, so your Mac’s own disk can’t be picked by mistake.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/ohernandezdev/flint/releases/latest">Download for Mac</a>
+        <a class="btn btn-secondary" href="#film">Watch it work</a>
+      </div>
+      <p class="mono hero-meta">v1.0.0 · macOS 13+ · Apple Silicon · Free, GPLv3</p>
     </div>
-    <div class="steps">
-      <div class="step-card">
-        <img src="assets/iso-empty.png" alt="Select ISO step" />
-        <div class="step-body">
-          <div class="step-num">Step 1</div>
-          <h3 class="step-title">Select your ISO</h3>
-          <p class="step-desc">Drag it in or browse. Flint reads the boot structure before touching anything.</p>
-        </div>
+    <div class="stick-col">
+      <div class="stick" id="stick">
+        <img class="stick-img" src="assets/usb-stick.webp" alt="Flint USB stick" width="1200" height="900" onerror="this.parentNode.classList.add('is-missing')">
+        <canvas class="stick-canvas" id="stick-canvas" role="img" aria-label="Flint USB stick"></canvas>
       </div>
-      <div class="step-card">
-        <img src="assets/choose-usb.png" alt="Choose USB drive step" />
-        <div class="step-body">
-          <div class="step-num">Step 2</div>
-          <h3 class="step-title">Choose the USB drive</h3>
-          <p class="step-desc">Only external, physical, removable disks are ever listed. The internal disk cannot appear here.</p>
-        </div>
-      </div>
-      <div class="step-card">
-        <img src="assets/confirm-erase.png" alt="Confirm before erasing step" />
-        <div class="step-body">
-          <div class="step-num">Step 3</div>
-          <h3 class="step-title">Confirm before erasing</h3>
-          <p class="step-desc">Exact disk name and size, plus a deliberate checkbox — no accidental clicks.</p>
-        </div>
-      </div>
-      <div class="step-card">
-        <img src="assets/copy-progress.png" alt="Creating the USB step" />
-        <div class="step-body">
-          <div class="step-num">Step 4</div>
-          <h3 class="step-title">Watch it build</h3>
-          <p class="step-desc">Real bytes, real percentages, real ETA — for every phase, including the raw write.</p>
+      <span class="chip">/dev/disk9 · 61.87 GB · USB</span>
+    </div>
+  </div>
+</section>
+
+<!-- Why -->
+<section class="why" id="why" aria-label="Why it exists">
+  <div class="wrap narrow">
+    <div class="why-inner">
+      <p class="label">Why it exists</p>
+      <p class="why-text" id="why-text">I bought parts for a new PC and needed a Windows installer on a USB stick. All I had was a Mac. The options were paying for one of the few apps that do this, or running an unsigned binary from a site I’d never heard of, as root, pointed at my disks. Neither felt right, so I wrote the one I wanted and made it free. I built it alongside an AI coding agent. That’s what made it realistic for one person to ship it with tests, a properly isolated privileged helper and a notarized release.</p>
+      <p class="mono muted signoff">Omar Hernandez, who wrote Flint</p>
+    </div>
+  </div>
+</section>
+
+<!-- Film -->
+<section class="section" id="film" aria-labelledby="film-h" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="film-h">The whole flow in thirty seconds</h2>
+      <p class="sub">The same four screens you’ll see in the app, sped up. The real copy takes as long as your USB stick needs.</p>
+    </div>
+    <div class="film-wrap">
+      <div class="film-frame" id="film-frame">
+        <div class="film-screen">
+          <video id="film-video" muted playsinline loop preload="none" poster="assets/flint-film-poster.jpg" aria-label="Flint creating a Windows 11 USB, start to finish">
+            <source src="assets/flint-film.webm" type="video/webm">
+            <source src="assets/flint-film.mp4" type="video/mp4">
+          </video>
+          <button class="btn btn-secondary btn-sm film-ctl" id="film-toggle" type="button">
+            <svg class="i" id="film-i-play" aria-hidden="true"><use href="#i-play"/></svg>
+            <svg class="i" id="film-i-pause" aria-hidden="true" hidden><use href="#i-pause"/></svg>
+            <span class="lbl">Play</span>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="alt">
+<!-- How it works -->
+<section class="section" id="how" aria-labelledby="how-h" style="padding-top:0">
   <div class="wrap">
-    <div class="section-head center">
-      <p class="kicker">Features</p>
-      <h2 class="headline">Built for the one job it does.</h2>
+    <div class="sec-head">
+      <p class="label">How it works</p>
+      <h2 id="how-h">Four screens, then you’re done</h2>
+      <p class="sub">Flint reads the ISO first and picks how to write it. Windows installers get copied to a FAT32 drive. Linux images get written byte for byte.</p>
     </div>
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/><line x1="3" y1="9" x2="11" y2="9"/><line x1="13" y1="9" x2="21" y2="9"/></svg></div>
-        <h3 class="feature-title">Windows and Linux, detected automatically</h3>
-        <p class="feature-desc">MBR + El Torito signatures decide the strategy. Windows installers get a FAT32 copy with install.wim split to fit; Linux/isohybrid images get written raw, exactly as the upstream image expects.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-        <h3 class="feature-title">USB-only, by construction</h3>
-        <p class="feature-desc">The picker enumerates disks through DiskArbitration and hard-excludes anything that isn't external + physical + removable. Not a UI filter — a code-level whitelist.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="11" height="7" rx="1.5"/><rect x="9" y="13" width="11" height="7" rx="1.5"/></svg></div>
-        <h3 class="feature-title">Privileged work, isolated</h3>
-        <p class="feature-desc">Only the destructive step runs as root, in a minimal helper reached over XPC. No AuthorizationExecuteWithPrivileges, no giving the whole app admin rights.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <h3 class="feature-title">Optional SHA-256 verification</h3>
-        <p class="feature-desc">Paste the official hash and Flint computes and compares it before writing a single byte.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1.5"/><line x1="7" y1="8" x2="7" y2="11"/><line x1="11" y1="8" x2="11" y2="11"/><line x1="15" y1="8" x2="15" y2="11"/><line x1="19" y1="8" x2="19" y2="11"/></svg></div>
-        <h3 class="feature-title">Size guard for raw writes</h3>
-        <p class="feature-desc">The USB is checked against the ISO size up front, so a too-small stick can't fail mid-write and leave a half-written drive.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg></div>
-        <h3 class="feature-title">Bilingual, real progress</h3>
-        <p class="feature-desc">English and Spanish UI. Live bytes, percentage, MB/s and ETA for every phase — never just a spinner.</p>
+    <div class="how-grid">
+      <ol class="steps">
+        <li class="step is-active" data-step="1">
+          <span class="mono num">01</span>
+          <div><h3>Pick the ISO</h3><p>Drop it on the window. Flint checks how the image boots before it touches anything, and tells you what it found.</p></div>
+          <div class="step-shot" aria-hidden="true"></div>
+        </li>
+        <li class="step" data-step="2">
+          <span class="mono num">02</span>
+          <div><h3>Pick the USB drive</h3><p>Only external, removable drives show up. Your Mac’s internal disk isn’t hidden behind a filter, it never makes it into the list.</p></div>
+          <div class="step-shot" aria-hidden="true"></div>
+        </li>
+        <li class="step" data-step="3">
+          <span class="mono num">03</span>
+          <div><h3>Confirm</h3><p>You see the exact drive name and size, and tick a box that says you understand it will be erased. The button stays off until you do.</p></div>
+          <div class="step-shot" aria-hidden="true"></div>
+        </li>
+        <li class="step" data-step="4">
+          <span class="mono num">04</span>
+          <div><h3>Let it write</h3><p>Format, copy, split, finish. Every phase shows real bytes, speed and time left. Linux images skip straight to one raw write.</p></div>
+          <div class="step-shot" aria-hidden="true"></div>
+        </li>
+      </ol>
+
+      <div class="how-stage" aria-hidden="true">
+        <div class="app" id="app">
+          <div class="app-title"><div class="lights"><i></i><i></i><i></i></div><span class="t">Flint</span></div>
+          <div class="app-head">
+            <span class="app-brand"><svg class="i" aria-hidden="true"><use href="#i-power"/></svg><span class="t">Flint</span></span>
+            <ol class="stepper">
+              <li class="st" data-state="current"><span class="dot"><span class="n">1</span><svg class="i"><use href="#i-check"/></svg></span><span class="lbl">ISO</span><span class="ln"></span></li>
+              <li class="st" data-state="future"><span class="dot"><span class="n">2</span><svg class="i"><use href="#i-check"/></svg></span><span class="lbl">USB drive</span><span class="ln"></span></li>
+              <li class="st" data-state="future"><span class="dot"><span class="n">3</span><svg class="i"><use href="#i-check"/></svg></span><span class="lbl">Confirm</span><span class="ln"></span></li>
+              <li class="st" data-state="future"><span class="dot"><span class="n">4</span><svg class="i"><use href="#i-check"/></svg></span><span class="lbl">Create</span><span class="ln"></span></li>
+            </ol>
+            <span class="app-lang"><svg class="i"><use href="#i-globe"/></svg><span class="lbl">English</span></span>
+          </div>
+          <div class="screens">
+            <!-- Screen 1 -->
+            <div class="screen" data-screen="1">
+              <p class="s-title">Select your ISO</p>
+              <p class="s-sub">Choose the official .iso file. Nothing is modified yet.</p>
+              <div class="s-file"><svg class="i"><use href="#i-disc"/></svg><span>Win11_25H2_English_x64.iso</span><a href="#how" tabindex="-1">Change ISO…</a></div>
+              <div class="s-card">
+                <div class="s-row"><svg class="i blue"><use href="#i-badge"/></svg><span>Windows installer detected — files copied to FAT32.</span></div>
+                <div class="s-row"><svg class="i"><use href="#i-file"/></svg><span>install.wim is 7.56 GB → will be split for FAT32.</span></div>
+                <div class="s-row"><svg class="i"><use href="#i-shield"/></svg><span>Secure Boot compatible (2023 cert likely).</span></div>
+              </div>
+              <div class="s-actions end"><span class="s-btn">Continue</span></div>
+            </div>
+            <!-- Screen 2 -->
+            <div class="screen" data-screen="2">
+              <p class="s-title">Choose the USB drive</p>
+              <p class="s-sub">Only external USB drives are shown. The internal disk never appears.</p>
+              <div class="s-card">
+                <div class="s-row"><span class="tile"><svg class="i"><use href="#i-drive"/></svg></span><span><span class="drv-name">USB Flash Drive</span><br><span class="drv-meta">/dev/disk9 · 61.87 GB · USB</span></span><span class="radio"></span></div>
+              </div>
+              <div class="s-actions"><span class="s-btn text">Back</span><span class="s-btn">Continue</span></div>
+            </div>
+            <!-- Screen 3 -->
+            <div class="screen" data-screen="3">
+              <p class="s-title">Confirm before erasing</p>
+              <div class="s-card">
+                <p class="warn"><svg class="i"><use href="#i-alert"/></svg>Everything will be erased on:</p>
+                <div class="s-row" style="margin-top:12px"><span class="tile red"><svg class="i"><use href="#i-drive"/></svg></span><span><span class="drv-name">USB Flash Drive</span><br><span class="drv-meta">/dev/disk9 · 61.87 GB</span></span></div>
+              </div>
+              <div class="field"><span>USB name (FAT32):</span><span class="input">WIN11</span><span class="count">5/11</span></div>
+              <div class="check-row"><span class="cb" data-cb><svg class="i"><use href="#i-check"/></svg></span><span>I understand <b>all</b> content on <b>USB Flash Drive</b> will be erased.</span></div>
+              <div class="s-actions"><span class="s-btn text">Back</span><span class="s-btn red" data-disabled data-redbtn><svg class="i"><use href="#i-zap"/></svg>Format and create USB</span></div>
+            </div>
+            <!-- Screen 4 -->
+            <div class="screen" data-screen="4">
+              <p class="s-title" data-s4title>Creating the USB…</p>
+              <div class="bar overall"><i data-overall></i></div>
+              <p class="status" data-status>Copying sources/boot.wim</p>
+              <div class="s-card">
+                <ul class="phases">
+                  <li data-state="done" data-ph="format"><span class="ph-dot"><svg class="i"><use href="#i-check"/></svg></span><span>Format</span></li>
+                  <li data-state="active" data-ph="copy"><span class="ph-dot"><svg class="i"><use href="#i-check"/></svg></span><span>Copy files</span><span class="ph-pct"><span data-pct>18</span> %</span>
+                    <div class="ph-body"><div class="bar copy ph-bar"><i data-copybar></i></div><p class="ph-sub" data-copyline>163.6 MB of 906 MB (18 %) · 1.47 GB/s · 1 s left</p></div></li>
+                  <li data-state="future" data-ph="split"><span class="ph-dot"><svg class="i"><use href="#i-check"/></svg></span><span>Split install.wim</span><span></span>
+                    <div class="ph-body"><p class="ph-sub">pieces under 3800 MiB each</p></div></li>
+                  <li data-state="future" data-ph="final"><span class="ph-dot"><svg class="i"><use href="#i-check"/></svg></span><span>Finalize</span></li>
+                </ul>
+              </div>
+              <div class="s-actions end"><span class="s-btn text">Cancel</span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="safety">
+<!-- Features -->
+<section class="section" id="features" aria-labelledby="feat-h" style="padding-top:0">
   <div class="wrap">
-    <div class="section-head">
-      <p class="kicker">Safety model</p>
-      <h2 class="headline">Formatting a disk as root is the whole risk. Here's what contains it.</h2>
-      <p>Flint's most sensitive capability is erasing or raw-writing a disk from a privileged helper. Every safeguard below exists because of that one fact.</p>
+    <div class="sec-head">
+      <p class="label">What it does</p>
+      <h2 id="feat-h">A small app with one job</h2>
+    </div>
+    <div class="bento">
+      <div class="bento-item a"><article class="card">
+        <svg class="i" aria-hidden="true"><use href="#i-scan"/></svg>
+        <h3>Windows or Linux, it works out which</h3>
+        <p>Flint reads the ISO’s boot records, the MBR signature and El Torito, and picks a method. Windows installers are copied to a FAT32 drive with install.wim split into pieces FAT32 can hold. Linux and other isohybrid images are written raw, the way their makers ship them. Anything it can’t make bootable is turned away before you start.</p>
+        <div class="mini-table">
+          <div class="mini-row"><span>Win11_25H2_English_x64.iso</span><span>FAT32 copy · install.wim split to fit</span></div>
+          <div class="mini-row"><span>ubuntu-26.04-desktop-amd64.iso</span><span>raw write · byte for byte</span></div>
+        </div>
+      </article></div>
+      <div class="bento-item"><article class="card">
+        <svg class="i" aria-hidden="true"><use href="#i-hash"/></svg>
+        <h3>Checks the SHA-256 if you ask</h3>
+        <p>Paste the hash from the download page and Flint checks the file against it, and tells you if it doesn’t match.</p>
+      </article></div>
+      <div class="bento-item"><article class="card">
+        <svg class="i" aria-hidden="true"><use href="#i-slash"/></svg>
+        <h3>Won’t start a write it can’t finish</h3>
+        <p>Before a raw write it checks the stick is at least as big as the ISO, so you never end up with half an image.</p>
+      </article></div>
+      <div class="bento-item"><article class="card">
+        <svg class="i" aria-hidden="true"><use href="#i-gauge"/></svg>
+        <h3>Progress you can read</h3>
+        <p>Bytes, percent, MB/s and time left for every phase, the raw write included. No endless spinner.</p>
+      </article></div>
+      <div class="bento-item"><article class="card">
+        <svg class="i" aria-hidden="true"><use href="#i-shield-alert"/></svg>
+        <h3>Warns about Secure Boot</h3>
+        <p>If the ISO’s boot files predate mid-2024, they were likely signed only with Microsoft’s 2011 certificate and may not boot with Secure Boot on. Flint warns you before you start.</p>
+      </article></div>
+    </div>
+  </div>
+</section>
+
+<!-- Safety -->
+<section class="section" id="safety" aria-labelledby="safety-h" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Safety</p>
+      <h2 id="safety-h">Erasing the wrong disk is the whole risk</h2>
+      <p class="sub">Flint erases drives and runs a helper as root. That’s the dangerous part, so these checks sit between you and the wrong disk.</p>
     </div>
     <div class="safety-grid">
-      <div class="safeguard-list">
-        <div class="safeguard">
-          <span class="safeguard-tag">S&#8209;1</span>
-          <p class="safeguard-copy"><b>Code-level whitelist.</b> Only external + physical + removable USB media is ever surfaced. The boot disk and disk images are excluded before the UI ever sees them.</p>
-        </div>
-        <div class="safeguard">
-          <span class="safeguard-tag">S&#8209;2</span>
-          <p class="safeguard-copy"><b>Explicit destructive confirmation.</b> Exact disk name and size shown, plus a deliberate "I understand" toggle — no default-confirmed dialogs.</p>
-        </div>
-        <div class="safeguard">
-          <span class="safeguard-tag">S&#8209;3</span>
-          <p class="safeguard-copy"><b>Just-in-time revalidation.</b> The disk identifier is re-checked immediately before the write — not just once, at selection time.</p>
-        </div>
-        <div class="safeguard">
-          <span class="safeguard-tag">S&#8209;4</span>
-          <p class="safeguard-copy"><b>The helper trusts no one.</b> The privileged process independently re-verifies the target is removable and external before acting — it never takes the app's word for it.</p>
-        </div>
-        <div class="safeguard">
-          <span class="safeguard-tag">S&#8209;5</span>
-          <p class="safeguard-copy"><b>Fail-safe errors.</b> Any failure aborts cleanly. No silent half-formatted disks, ever.</p>
+      <div class="disk-col">
+        <p class="cap">What macOS sees, and what Flint lists</p>
+        <ul class="slab-list">
+          <li class="is-out"><span class="lab">disk0 · APPLE SSD AP1024Z · 1 TB · internal</span><span class="chip">internal disk</span></li>
+          <li class="is-out"><span class="lab">disk3 · Macintosh HD · APFS container</span><span class="chip">virtual</span></li>
+          <li class="is-out"><span class="lab">disk5 · Win11_25H2_English_x64.iso · disk image</span><span class="chip">disk image</span></li>
+          <li class="is-listed"><span class="lab">disk9 · USB Flash Drive · 61.87 GB · USB</span><span class="chip">listed</span></li>
+        </ul>
+        <div class="stack-stage" aria-hidden="true">
+          <div class="stack">
+            <div class="slab" data-slab="0"><span class="lab">disk0 · APPLE SSD AP1024Z · 1 TB · internal</span><span class="chip tag danger">internal disk</span></div>
+            <div class="slab" data-slab="1"><span class="lab">disk3 · Macintosh HD · APFS container</span><span class="chip tag danger">virtual</span></div>
+            <div class="slab" data-slab="2"><span class="lab">disk5 · Win11_25H2_English_x64.iso · disk image</span><span class="chip tag danger">disk image</span></div>
+            <div class="slab" data-slab="3"><span class="lab">disk9 · USB Flash Drive · 61.87 GB · USB</span><span class="chip tag">listed</span></div>
+          </div>
         </div>
       </div>
-      <div class="arch-diagram">
-        <div class="arch-box">Flint.app<br /><span style="font-weight:400;color:var(--ink-muted);font-size:12px;">runs as you, no special rights</span></div>
-        <div class="arch-arrow">↕ XPC, code-signature checked</div>
-        <div class="arch-box priv">FlintHelper (root)<br /><span style="font-weight:400;color:var(--on-primary);opacity:0.7;font-size:12px;">only eraseDisk + raw write</span></div>
-        <p class="arch-caption">Everything else — mounting, copying, splitting, verifying, ejecting — runs unprivileged, as you.</p>
+      <ol class="sg-list">
+        <li><span class="chip">S-1</span><div><h3>Only external drives get listed</h3><p>A drive has to be external, physical and removable or ejectable to show up. The boot disk, disk images and virtual devices are dropped in code, before the interface ever sees them. Other external drives, like a backup disk, can appear, so unplug the ones you care about.</p></div></li>
+        <li><span class="chip">S-2</span><div><h3>You confirm by name and size</h3><p>The confirm screen shows the exact drive and its size, and the erase button stays off until you tick the box.</p></div></li>
+        <li><span class="chip">S-3</span><div><h3>Checked again right before writing</h3><p>The drive is looked up again just before the write, in case the stick changed while the window was open.</p></div></li>
+        <li><span class="chip">S-4</span><div><h3>The helper double-checks</h3><p>The root helper checks on its own that the target is external and removable. It doesn’t take the app’s word for it.</p></div></li>
+        <li><span class="chip">S-5</span><div><h3>Failures stop cleanly</h3><p>If a step fails, the build stops and tells you what happened instead of carrying on with a half-made drive.</p></div></li>
+      </ol>
+    </div>
+
+    <div class="arch" id="arch">
+      <div class="arch-stage">
+        <div class="arch-iso">
+          <div class="plane flintapp"><strong>Flint.app</strong><span>runs as you</span></div>
+          <div class="xpc"><span class="xpc-line"></span><span class="mono xpc-label">XPC · code signature checked</span></div>
+          <div class="plane helper"><strong>FlintHelper</strong><span>root · erase, unmount, raw write, eject</span></div>
+        </div>
       </div>
+      <p class="arch-cap">Copying, splitting and verifying run as you. The helper only touches the disk itself: it erases it, and for Linux images it also unmounts it, writes the image and ejects it.</p>
     </div>
   </div>
 </section>
 
-<section class="alt" id="compare">
+<!-- Compare -->
+<section class="section" id="compare" aria-labelledby="cmp-h" style="padding-top:0">
   <div class="wrap">
-    <div class="section-head center">
-      <p class="kicker">Why not just&hellip;</p>
-      <h2 class="headline">The manual way works. It's also how you erase the wrong disk.</h2>
+    <div class="sec-head">
+      <p class="label">Compared</p>
+      <h2 id="cmp-h">Why not use what’s already on your Mac?</h2>
     </div>
     <div class="compare-wrap">
-      <table class="compare">
-        <thead>
-          <tr><th>&nbsp;</th><th>Flint</th><th>Rufus (Windows only)</th><th>Boot Camp Assistant</th><th>Manual Terminal</th></tr>
-        </thead>
-        <tbody>
-          <tr class="highlight"><td>Free &amp; open source</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td>Runs on macOS</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td>Windows <em>and</em> Linux ISOs</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">Windows only</td><td class="yes">✓</td></tr>
-          <tr><td>Internal disk cannot appear</td><td class="yes">✓</td><td class="no">n/a</td><td class="no">n/a</td><td class="no">Your responsibility</td></tr>
-          <tr><td>No Terminal knowledge needed</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap" id="cmp-wrap" tabindex="0" role="region" aria-labelledby="cmp-h">
+        <table>
+          <thead>
+            <tr><th scope="col"><span class="sr-only">Feature</span></th><th scope="col" class="col-flint">Flint</th><th scope="col">balenaEtcher</th><th scope="col">WinDiskWriter</th><th scope="col">Boot Camp Assistant</th><th scope="col">Terminal (diskutil + dd)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Windows installer USB</th>
+              <td class="col-flint"><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td>Writes it raw, won’t boot</td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td>Older Intel Macs only</td>
+              <td>Doable, with wimlib and care</td>
+            </tr>
+            <tr>
+              <th scope="row">Linux ISO USB</th>
+              <td class="col-flint"><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i dash" aria-hidden="true"><use href="#i-dash"/></svg><span class="sr-only">No</span></td>
+              <td><svg class="i dash" aria-hidden="true"><use href="#i-dash"/></svg><span class="sr-only">No</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Runs on Apple Silicon</th>
+              <td class="col-flint"><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i dash" aria-hidden="true"><use href="#i-dash"/></svg><span class="sr-only">No</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Internal disk can’t be picked</th>
+              <td class="col-flint"><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td>Hidden by default</td>
+              <td>Didn’t check</td>
+              <td>n/a</td>
+              <td>Up to you</td>
+            </tr>
+            <tr>
+              <th scope="row">Free and open source</th>
+              <td class="col-flint"><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td><svg class="i ck" aria-hidden="true"><use href="#i-check"/></svg><span class="sr-only">Yes</span></td>
+              <td>Free, closed source</td>
+              <td>Built in, free</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="foot">Etcher writes Windows ISOs as raw images, which don’t boot on most PCs, and warns you about it. WinDiskWriter is Windows-only. Boot Camp Assistant doesn’t exist on Apple Silicon, and Intel Macs from 2015 on don’t use a USB stick for it. Flint’s Linux path is newer than its Windows one, see the FAQ.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" aria-labelledby="faq-h" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="faq-h">Questions people ask</h2></div>
+    <div class="faq-list">
+      <details><summary>Can it erase my Mac’s disk?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>No. The drive list only contains external, physical, removable drives. Internal disks, disk images and virtual devices are filtered out in code, and the root helper checks the target again before it writes. Other external drives, like a backup disk, can show up, so unplug the ones you care about before you start.</p></div></details>
+      <details><summary>Why does macOS ask me to approve something in Login Items?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>Erasing a disk needs root. Instead of running the whole app as root, Flint installs one small helper through SMAppService that only erases the disk and writes the image. macOS asks you to allow it once, in System Settings → General → Login Items. If you write a Linux ISO that sits in a protected folder like Downloads, macOS may also ask you to give the helper Full Disk Access; Flint links you straight to that setting.</p></div></details>
+      <details><summary>Which ISOs work?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>Windows installer ISOs are tested end to end: Windows 11 25H2, including a real install from the stick. Linux and other isohybrid ISOs, such as Ubuntu, Fedora and Debian, are written raw. The detector is tested against Ubuntu 26.04, but booting from a Flint-made Linux stick hasn’t been confirmed on real hardware yet, so reports are welcome. ISOs that can’t be made bootable are rejected before anything is written.</p></div></details>
+      <details><summary>Does it work on Intel Macs?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>Partly. Linux images work on both. Windows ISOs whose install.wim is over 4 GiB, which includes current Windows 11 images, need an Apple Silicon Mac for now: the wimlib tool bundled in v1.0.0 is arm64-only, so on an Intel Mac the build fails at the split step, after the drive has already been erased.</p><p><a href="https://github.com/ohernandezdev/flint/issues">Help fix it on GitHub</a></p></div></details>
+      <details><summary>How big does the USB stick need to be?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>16 GB for Windows 11, and Flint warns you below that. For Linux, at least the size of the ISO.</p></div></details>
+      <details><summary>Does it phone home?<svg class="i" aria-hidden="true"><use href="#i-chevron"/></svg></summary><div class="ans"><p>No. There is no account, no analytics and no network code in the app. It’s GPLv3, so you can check.</p></div></details>
     </div>
   </div>
 </section>
 
-<div class="final-cta">
+<!-- Final CTA -->
+<section class="final" id="final" aria-labelledby="final-h">
   <div class="wrap">
-    <h2>Requires macOS 13 or later.</h2>
-    <p>Universal binary · Apple Silicon &amp; Intel · Signed and notarized by Apple</p>
-    <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/ohernandezdev/flint/releases/latest">Download for macOS</a>
+    <div class="final-card">
+      <div>
+        <h2 id="final-h">Got an ISO and a spare USB stick?</h2>
+        <p class="t">That’s everything you need. Flint is free and takes a minute to set up.</p>
+      </div>
+      <div class="final-actions">
+        <a class="btn btn-primary" href="https://github.com/ohernandezdev/flint/releases/latest">Download for Mac</a>
+        <a class="btn btn-secondary" href="https://github.com/ohernandezdev/flint"><svg class="i-fill" viewBox="0 0 16 16" aria-hidden="true"><use href="#i-github"/></svg>Star on GitHub</a>
+      </div>
+      <p class="mono final-meta">Flint-1.0.0.dmg · 1.6 MB · signed and notarized</p>
     </div>
   </div>
-</div>
+</section>
+
+</main>
 
 <footer>
-  <div class="wrap">
-    <div class="brand"><img src="assets/icon.png" alt="" /> Flint</div>
-    <div class="foot-links">
+  <div class="wrap foot-grid">
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="24" height="24"><span>Flint</span></a>
+    <nav class="foot-links" aria-label="Project">
       <a href="https://github.com/ohernandezdev/flint">GitHub</a>
+      <a href="https://github.com/ohernandezdev/flint/releases">Releases</a>
       <a href="https://github.com/ohernandezdev/flint/blob/main/LICENSE">License (GPLv3)</a>
-      <a href="https://github.com/ohernandezdev/flint/blob/main/SECURITY.md">Security policy</a>
+      <a href="https://github.com/ohernandezdev/flint/security/policy">Security policy</a>
       <a href="https://github.com/ohernandezdev/flint/blob/main/CONTRIBUTING.md">Contributing</a>
-    </div>
-    <div class="foot-copy">Made for people who'd rather not lose a disk to a typo.</div>
+    </nav>
+    <p class="foot-line">Made by someone who’d rather not lose a disk to a typo</p>
   </div>
 </footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script type="module">
+/* ------------------------------------------------------------------
+   Helpers
+------------------------------------------------------------------ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+const cleanups = [];
+
+function splitWords(el) {
+  const original = el.textContent;
+  const words = original.trim().split(/\s+/);
+  el.textContent = '';
+  const spans = words.map((word, i) => {
+    const s = document.createElement('span');
+    s.className = 'w';
+    s.textContent = word;
+    el.appendChild(s);
+    if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+    return s;
+  });
+  cleanups.push(() => { el.textContent = original; });
+  return spans;
+}
+
+/* ------------------------------------------------------------------
+   Hero: entrance + WebGL USB stick (falls back to the <img>)
+------------------------------------------------------------------ */
+function initHeroEntrance() {
+  const items = $$('.hero-copy > *');
+  if (!items.length) return;
+  gsap.from(items, { opacity: 0, y: 12, duration: 0.48, stagger: 0.06, ease: 'power3.out', clearProps: 'opacity,transform' });
+}
+
+async function initHeroStick() {
+  const host = $('#stick');
+  const canvas = $('#stick-canvas');
+  const hero = $('#hero');
+  if (!host || !canvas || !hero) return;
+  if (reduceMQ.matches) { canvas.remove(); return; }
+
+  let renderer = null;
+  try {
+    const probe = document.createElement('canvas');
+    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) throw new Error('no webgl');
+    const THREE = await import('three');
+    const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+    const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
+
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(28, 4 / 3, 0.1, 50);
+    camera.position.set(0, 0.95, 5.3);
+    camera.lookAt(0, 0, 0);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const key = new THREE.DirectionalLight(0xffffff, 1.4);
+    key.position.set(-3, 4, 3);
+    scene.add(key);
+
+    const canvasTex = (size, draw, srgb) => {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      draw(c.getContext('2d'), size);
+      const t = new THREE.CanvasTexture(c);
+      if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+
+    const brushed = canvasTex(512, (g, n) => {
+      for (let y = 0; y < n; y++) {
+        const v = 170 + Math.floor(Math.random() * 85);
+        g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+        g.fillRect(0, y, n, 1);
+      }
+    }, false);
+    brushed.wrapS = brushed.wrapT = THREE.RepeatWrapping;
+
+    const glyph = canvasTex(256, (g) => {
+      g.clearRect(0, 0, 256, 256);
+      g.strokeStyle = '#e9ebef';
+      g.lineWidth = 22;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.arc(128, 136, 70, -Math.PI / 2 + 0.55, -Math.PI / 2 - 0.55 + Math.PI * 2);
+      g.stroke();
+      g.beginPath();
+      g.moveTo(128, 44);
+      g.lineTo(128, 128);
+      g.stroke();
+    }, true);
+
+    const shadowTex = canvasTex(256, (g, n) => {
+      const grad = g.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+      grad.addColorStop(0, 'rgba(0,0,0,1)');
+      grad.addColorStop(0.25, 'rgba(0,0,0,0.6)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0.2)');
+      grad.addColorStop(0.75, 'rgba(0,0,0,0.04)');
+      grad.addColorStop(0.9, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, n, n);
+    }, true);
+
+    const matBody = new THREE.MeshPhysicalMaterial({ color: 0x1a1c21, roughness: 0.42, clearcoat: 0.5, clearcoatRoughness: 0.35, envMapIntensity: 0.9 });
+    const matMetal = new THREE.MeshStandardMaterial({ color: 0xc8ccd2, metalness: 1, roughness: 0.28, roughnessMap: brushed, envMapIntensity: 0.9 });
+    const matDark = new THREE.MeshStandardMaterial({ color: 0x0a0b0d, roughness: 0.8, envMapIntensity: 0.9 });
+    const matTongue = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.6, envMapIntensity: 0.9 });
+    const matLed = new THREE.MeshStandardMaterial({ color: 0x0a1a33, emissive: new THREE.Color(0x3291ff), emissiveIntensity: 1.2 });
+    const matGlyph = new THREE.MeshStandardMaterial({ map: glyph, transparent: true, roughness: 0.5, envMapIntensity: 0.9 });
+
+    const stick = new THREE.Group();
+    const model = new THREE.Group();
+    model.position.x = -0.38;
+    stick.add(model);
+
+    const body = new THREE.Mesh(new RoundedBoxGeometry(2.4, 0.34, 0.92, 6, 0.09), matBody);
+    model.add(body);
+
+    const shell = new THREE.Group();
+    shell.position.x = 1.53;
+    const plate = (w, h, d, x, y, z) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), matMetal);
+      m.position.set(x, y, z);
+      shell.add(m);
+    };
+    plate(0.86, 0.02, 0.62, 0, 0.09, 0);
+    plate(0.86, 0.02, 0.62, 0, -0.09, 0);
+    plate(0.86, 0.16, 0.02, 0, 0, 0.3);
+    plate(0.86, 0.16, 0.02, 0, 0, -0.3);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.16, 0.58), matDark);
+    back.position.set(-0.38, 0, 0);
+    shell.add(back);
+    const tongue = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.06, 0.56), matTongue);
+    tongue.position.set(-0.03, 0, 0);
+    shell.add(tongue);
+    [-0.14, 0.14].forEach((z) => {
+      const hole = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.12), matDark);
+      hole.position.set(-0.18, 0.1, z);
+      shell.add(hole);
+    });
+    model.add(shell);
+
+    const decal = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), matGlyph);
+    decal.rotation.x = -Math.PI / 2;
+    decal.position.set(-0.35, 0.172, 0);
+    model.add(decal);
+
+    const lanyard = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.345, 24), matDark);
+    lanyard.position.set(-1.05, 0, 0);
+    model.add(lanyard);
+
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.012, 0.05), matLed);
+    led.position.set(0.95, 0.176, 0.28);
+    model.add(led);
+
+    scene.add(stick);
+
+    const isDark = () => {
+      const t = document.documentElement.getAttribute('data-theme');
+      if (t) return t === 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    };
+    const matShadow = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false, opacity: isDark() ? 0.6 : 0.28 });
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.5), matShadow); // keep narrower than the visible frustum (~3.5 units wide at this camera) or the canvas edge clips it
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = -0.5;
+    scene.add(shadow);
+
+    const pose = { s: 0 };
+    const cur = { x: 0, y: 0 };
+    const tgt = { x: 0, y: 0 };
+    let visible = true;
+    let raf = 0;
+
+    const frame = () => {
+      raf = 0;
+      cur.x += (tgt.x - cur.x) * 0.08;
+      cur.y += (tgt.y - cur.y) * 0.08;
+      stick.rotation.set(0.38 - 0.2 * pose.s + cur.y * 0.12, -0.62 + 1.2 * pose.s + cur.x * 0.12, 0.1);
+      stick.position.y = -0.5 * pose.s;
+      renderer.render(scene, camera);
+      if (Math.abs(tgt.x - cur.x) > 0.001 || Math.abs(tgt.y - cur.y) > 0.001) request();
+    };
+    function request() {
+      if (!raf && visible) raf = requestAnimationFrame(frame);
+    }
+
+    const resize = () => {
+      const w = Math.max(1, host.clientWidth);
+      const h = Math.max(1, host.clientHeight);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      request();
+    };
+
+    host.classList.add('is-3d');
+    resize();
+    frame();
+
+    new ResizeObserver(resize).observe(host);
+    new IntersectionObserver((entries) => {
+      visible = entries[0].isIntersecting;
+      if (visible) request();
+    }).observe(host);
+
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      tgt.x = clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
+      tgt.y = clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
+      request();
+    });
+    hero.addEventListener('pointerleave', () => { tgt.x = 0; tgt.y = 0; request(); });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      matShadow.opacity = isDark() ? 0.6 : 0.28;
+      request();
+    });
+
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      host.classList.remove('is-3d');
+    });
+
+    if (window.gsap && window.ScrollTrigger) {
+      gsap.to(pose, {
+        s: 1, ease: 'none', onUpdate: request,
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+      });
+    }
+  } catch (err) {
+    host.classList.remove('is-3d');
+    if (renderer) { try { renderer.dispose(); } catch (e) { /* ignore */ } }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Why: scrubbed word reveal
+------------------------------------------------------------------ */
+function initWhy() {
+  const sec = $('#why');
+  const text = $('#why-text');
+  const inner = $('.why-inner');
+  if (!sec || !text || !inner) return;
+  const words = splitWords(text);
+  gsap.set(words, { opacity: 0.18 });
+  gsap.to(words, {
+    opacity: 1, ease: 'none', duration: 0.1, stagger: 0.1,
+    scrollTrigger: { trigger: sec, start: 'top 80%', end: 'bottom 60%', scrub: true }
+  });
+  gsap.fromTo(inner, { rotateX: 10, transformPerspective: 1200, transformOrigin: '50% 100%' }, {
+    rotateX: 0, ease: 'none',
+    scrollTrigger: { trigger: sec, start: 'top 80%', end: 'bottom 60%', scrub: true }
+  });
+}
+
+/* ------------------------------------------------------------------
+   Film: player (works without GSAP) and window tilt
+------------------------------------------------------------------ */
+function initFilmPlayer() {
+  const video = $('#film-video');
+  const btn = $('#film-toggle');
+  const frame = $('#film-frame');
+  if (!video || !btn || !frame) return;
+  const label = $('.lbl', btn);
+  const iPlay = $('#film-i-play');
+  const iPause = $('#film-i-pause');
+  let userPaused = false;
+
+  const sync = () => {
+    const playing = !video.paused;
+    label.textContent = playing ? 'Pause' : 'Play';
+    iPlay.hidden = playing;
+    iPause.hidden = !playing;
+  };
+  const fail = () => { frame.classList.add('is-missing'); };
+  const play = () => {
+    const p = video.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {
+        if (video.error || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) fail();
+        sync();
+      });
+    }
+  };
+
+  const sources = $$('source', video);
+  sources.forEach((s, i) => {
+    s.addEventListener('error', () => { if (i === sources.length - 1) fail(); });
+  });
+  video.addEventListener('error', fail);
+  video.addEventListener('play', sync);
+  video.addEventListener('pause', sync);
+
+  btn.addEventListener('click', () => {
+    if (video.paused) { userPaused = false; play(); } else { userPaused = true; video.pause(); }
+  });
+
+  if (!reduceMQ.matches && 'IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      const e = entries[0];
+      if (e.isIntersecting && !userPaused) play();
+      else if (!e.isIntersecting) video.pause();
+    }, { threshold: 0.5 }).observe(video);
+  }
+  sync();
+}
+
+function initFilm() {
+  const wrap = $('.film-wrap');
+  const frame = $('#film-frame');
+  if (!wrap || !frame) return;
+  gsap.fromTo(frame, { rotateX: 22, scale: 0.9, y: 48, transformPerspective: 1600, transformOrigin: '50% 100%' }, {
+    rotateX: 0, scale: 1, y: 0, ease: 'none',
+    scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'top 30%', scrub: true }
+  });
+}
+
+/* ------------------------------------------------------------------
+   How it works: step shots (static) and the pinned 3D window
+------------------------------------------------------------------ */
+function setStepper(root, current, allDone) {
+  $$('.st', root).forEach((li, i) => {
+    const state = (allDone || i < current) ? 'done' : (i === current ? 'current' : 'future');
+    li.dataset.state = state;
+  });
+}
+
+function buildHowShots() {
+  const app = $('#app');
+  const steps = $$('#how .step');
+  if (!app || steps.length < 4) return;
+  steps.forEach((step, i) => {
+    const holder = $('.step-shot', step);
+    if (!holder || holder.childElementCount) return;
+    const clone = app.cloneNode(true);
+    clone.removeAttribute('id');
+    $$('.screen', clone).forEach((sc, k) => {
+      if (k === i) sc.classList.add('is-shown'); else sc.remove();
+    });
+    setStepper(clone, i, false);
+    holder.appendChild(clone);
+  });
+}
+
+const HOW_T = { swap1: 2.1, swap2: 4.3, swap3: 6.9, copyStart: 7.4, copyEnd: 9.0, splitEnd: 9.6, finalEnd: 10.2, check: 5.8, total: 12 };
+
+function initHowItWorks(wide) {
+  const sec = $('#how');
+  if (!sec) return;
+  const grid = $('.how-grid', sec);
+  const stage = $('.how-stage', sec);
+  const win = $('#app');
+  const screens = $$('.screens .screen', win || document);
+  const steps = $$('.step', sec);
+  if (!grid || !stage || !win || screens.length < 4) return;
+
+  if (!wide) {
+    sec.classList.add('how--static');
+    cleanups.push(() => sec.classList.remove('how--static'));
+    steps.forEach((step) => {
+      const shot = $('.step-shot', step);
+      if (!shot) return;
+      gsap.from(shot, { opacity: 0, y: 16, duration: 0.48, ease: 'power3.out', scrollTrigger: { trigger: shot, start: 'top 88%', once: true } });
+    });
+    return;
+  }
+
+  sec.classList.add('how--pin');
+  cleanups.push(() => sec.classList.remove('how--pin'));
+
+  const cb = $('[data-cb]', win);
+  const redBtn = $('[data-redbtn]', win);
+  const s4title = $('[data-s4title]', win);
+  const overall = $('[data-overall]', win);
+  const copyBar = $('[data-copybar]', win);
+  const pct = $('[data-pct]', win);
+  const copyLine = $('[data-copyline]', win);
+  const status = $('[data-status]', win);
+  const phases = {};
+  $$('[data-ph]', win).forEach((li) => { phases[li.dataset.ph] = li; });
+
+  const [s1, s2, s3, s4] = screens;
+  gsap.set([win, ...screens], { transformPerspective: 1800 });
+  gsap.set(s1, { opacity: 1 });
+  gsap.set([s2, s3, s4], { opacity: 0 });
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    onUpdate: () => render(tl.time()),
+    scrollTrigger: { trigger: grid, start: 'center center', end: '+=350%', pin: true, scrub: 0.6, anticipatePin: 1 }
+  });
+
+  const swap = (from, to, at) => {
+    tl.fromTo(from, { opacity: 1, z: 0 }, { opacity: 0, z: -60, duration: 0.3, immediateRender: false }, at);
+    tl.to(win, { rotateY: -14, duration: 0.3 }, at);
+    tl.fromTo(to, { opacity: 0, rotateY: 14, z: 0 }, { opacity: 1, rotateY: 0, duration: 0.3 }, at + 0.3);
+    tl.to(win, { rotateY: 0, duration: 0.3 }, at + 0.3);
+  };
+  swap(s1, s2, 1.8);
+  swap(s2, s3, 4.0);
+  swap(s3, s4, 6.6);
+  tl.to(win, { rotateY: 0, duration: 0.1 }, HOW_T.total - 0.1);
+
+  function render(t) {
+    const idx = t < HOW_T.swap1 ? 0 : t < HOW_T.swap2 ? 1 : t < HOW_T.swap3 ? 2 : 3;
+    const ready = t >= HOW_T.finalEnd;
+    steps.forEach((s, i) => s.classList.toggle('is-active', i === idx));
+    setStepper(win, idx, ready);
+
+    const checked = t >= HOW_T.check;
+    cb.classList.toggle('is-checked', checked);
+    if (checked) redBtn.removeAttribute('data-disabled'); else redBtn.setAttribute('data-disabled', '');
+
+    const p = clamp((t - HOW_T.copyStart) / (HOW_T.copyEnd - HOW_T.copyStart), 0, 1);
+    const mb = p * 906;
+    const left = Math.ceil((1 - p) * 2);
+    const pc = Math.round(p * 100);
+    copyBar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+    pct.textContent = String(pc);
+    copyLine.textContent = mb.toFixed(1) + ' MB of 906 MB (' + pc + ' %) · 1.47 GB/s · ' + left + ' s left';
+
+    const splitting = t >= HOW_T.copyEnd && t < HOW_T.splitEnd;
+    const finalizing = t >= HOW_T.splitEnd && t < HOW_T.finalEnd;
+    phases.copy.dataset.state = p >= 1 ? 'done' : 'active';
+    phases.split.dataset.state = t >= HOW_T.splitEnd ? 'done' : (splitting ? 'active' : 'future');
+    phases.final.dataset.state = ready ? 'done' : (finalizing ? 'active' : 'future');
+    if (t < HOW_T.copyStart) phases.copy.dataset.state = 'active';
+
+    let overallP;
+    if (t < HOW_T.copyEnd) overallP = 0.05 + 0.65 * p;
+    else if (t < HOW_T.splitEnd) overallP = 0.7 + 0.2 * ((t - HOW_T.copyEnd) / (HOW_T.splitEnd - HOW_T.copyEnd));
+    else if (t < HOW_T.finalEnd) overallP = 0.9 + 0.1 * ((t - HOW_T.splitEnd) / (HOW_T.finalEnd - HOW_T.splitEnd));
+    else overallP = 1;
+    overall.style.transform = 'scaleX(' + overallP.toFixed(4) + ')';
+
+    status.textContent = ready ? '' : splitting ? 'Splitting install.wim' : finalizing ? 'Finalizing' : 'Copying sources/boot.wim';
+    s4title.textContent = ready ? 'USB ready' : 'Creating the USB…';
+  }
+  render(0);
+}
+
+/* ------------------------------------------------------------------
+   Features bento
+------------------------------------------------------------------ */
+function initFeatures() {
+  const grid = $('.bento');
+  const items = $$('.bento-item');
+  if (!grid || !items.length) return;
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: grid, start: 'top 90%', end: 'top 60%', scrub: true }
+  });
+  items.forEach((item, i) => {
+    tl.fromTo(item, { rotateX: -14, y: 40, opacity: 0, transformPerspective: 900 }, { rotateX: 0, y: 0, opacity: 1, duration: 0.4 }, i * 0.08);
+  });
+
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    items.forEach((item) => {
+      const card = $('.card', item);
+      if (!card) return;
+      const onMove = (e) => {
+        const r = card.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+        gsap.to(card, { rotateY: nx * 3, rotateX: -ny * 3, transformPerspective: 900, duration: 0.16, ease: 'power3.out', overwrite: 'auto' });
+      };
+      const onLeave = () => gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.16, ease: 'power3.out', overwrite: 'auto' });
+      card.addEventListener('pointermove', onMove);
+      card.addEventListener('pointerleave', onLeave);
+      cleanups.push(() => {
+        card.removeEventListener('pointermove', onMove);
+        card.removeEventListener('pointerleave', onLeave);
+      });
+    });
+  }
+}
+
+/* ------------------------------------------------------------------
+   Safety: pinned disk stack
+------------------------------------------------------------------ */
+function initSafety(wide) {
+  const sec = $('#safety');
+  if (!sec || !wide) return;
+  const grid = $('.safety-grid', sec);
+  const stack = $('.stack', sec);
+  const slabs = $$('.slab', sec);
+  const items = $$('.sg-list li', sec);
+  if (!grid || !stack || slabs.length < 4 || items.length < 5) return;
+
+  sec.classList.add('safety--pin');
+  cleanups.push(() => sec.classList.remove('safety--pin'));
+
+  const tags = slabs.map((s) => $('.tag', s));
+  const GAP0 = 16;
+  const GAP1 = 76;
+  const END = 7.5;
+  const dropAt = (i) => 1.5 + i * 0.9;
+
+  gsap.set(stack, { rotationX: 52, transformOrigin: '50% 50%' });
+  slabs.forEach((s, i) => gsap.set(s, { y: i * GAP0, z: (3 - i) * 2 }));
+  gsap.set(tags, { opacity: 0 });
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    onUpdate: () => mark(tl.time()),
+    scrollTrigger: { trigger: grid, start: 'center center', end: '+=200%', pin: true, scrub: 0.6, anticipatePin: 1 }
+  });
+
+  slabs.forEach((s, i) => tl.to(s, { y: i * GAP1, duration: 1 }, 0));
+  tl.to(stack, { rotationX: 18, duration: 1.2 }, 0);
+  for (let i = 0; i < 3; i++) {
+    tl.to(tags[i], { opacity: 1, duration: 0.3 }, dropAt(i) - 0.2);
+    tl.to(slabs[i], { z: -120, y: i * GAP1 + 16, opacity: 0.35, duration: 0.6 }, dropAt(i));
+  }
+  tl.to(slabs[3], { z: 40, duration: 0.8 }, 4.5);
+  tl.to(stack, { rotationX: 0, duration: 1.2 }, 4.5);
+  tl.to(tags[3], { opacity: 1, duration: 0.3 }, 5.0);
+  tl.to({}, { duration: 0.01 }, END - 0.01);
+
+  function mark(t) {
+    for (let i = 0; i < 3; i++) slabs[i].classList.toggle('is-struck', t >= dropAt(i));
+    slabs[3].classList.toggle('is-listed', t >= 5.0);
+    const active = t < 1.3 ? -1 : t < 4.5 ? 0 : t < 5.2 ? 1 : t < 5.9 ? 2 : t < 6.6 ? 3 : 4;
+    items.forEach((li, i) => li.classList.toggle('is-active', i === active));
+  }
+  mark(0);
+}
+
+/* ------------------------------------------------------------------
+   Safety: architecture planes
+------------------------------------------------------------------ */
+function initArchitecture(wide) {
+  const arch = $('#arch');
+  const stage = $('.arch-stage', arch || document);
+  const iso = $('.arch-iso', arch || document);
+  if (!arch || !stage || !iso || !wide) return;
+  const top = $('.plane.flintapp', iso);
+  const bottom = $('.plane.helper', iso);
+  const line = $('.xpc-line', iso);
+  const label = $('.xpc-label', iso);
+  if (!top || !bottom || !line) return;
+
+  arch.classList.add('arch--3d');
+  cleanups.push(() => arch.classList.remove('arch--3d'));
+
+  gsap.set(iso, { rotationX: 40, transformPerspective: 1400, transformOrigin: '50% 50%' });
+  gsap.set(top, { y: 32 });
+  gsap.set(bottom, { y: -32 });
+  gsap.set(line, { scaleY: 0, transformOrigin: '50% 50%' });
+  if (label) gsap.set(label, { opacity: 0 });
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: stage, start: 'top 80%', end: 'bottom 40%', scrub: true }
+  });
+  tl.to(iso, { rotationX: 0, duration: 1 }, 0);
+  tl.to(top, { y: 0, duration: 1 }, 0);
+  tl.to(bottom, { y: 0, duration: 1 }, 0);
+  tl.to(line, { scaleY: 1, duration: 0.8 }, 0.2);
+  if (label) tl.to(label, { opacity: 1, duration: 0.3 }, 0.7);
+}
+
+/* ------------------------------------------------------------------
+   Compare
+------------------------------------------------------------------ */
+function initCompare() {
+  const wrap = $('#cmp-wrap');
+  if (!wrap) return;
+  const rows = $$('tbody tr', wrap);
+  gsap.fromTo(wrap, { rotateX: 16, y: 32, transformPerspective: 1200 }, {
+    rotateX: 0, y: 0, ease: 'none',
+    scrollTrigger: { trigger: wrap, start: 'top 95%', end: 'top 55%', scrub: true }
+  });
+  gsap.from(rows, {
+    opacity: 0, stagger: 0.04, duration: 0.48, ease: 'power3.out',
+    scrollTrigger: { trigger: wrap, start: 'top 80%', once: true }
+  });
+}
+
+/* ------------------------------------------------------------------
+   Final CTA
+------------------------------------------------------------------ */
+function initFinal() {
+  const h = $('#final-h');
+  if (!h) return;
+  const words = splitWords(h);
+  gsap.from(words, {
+    opacity: 0, y: 12, stagger: 0.06, duration: 0.48, ease: 'power3.out',
+    scrollTrigger: { trigger: h, start: 'top 88%', once: true }
+  });
+}
+
+/* ------------------------------------------------------------------
+   Boot
+------------------------------------------------------------------ */
+function markStatic() {
+  const how = $('#how');
+  if (how) how.classList.add('how--static');
+}
+
+function boot() {
+  initFilmPlayer();
+  buildHowShots();
+
+  const hasGsap = !!(window.gsap && window.ScrollTrigger);
+  if (!hasGsap) {
+    markStatic();
+    initHeroStick();
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  const mm = gsap.matchMedia();
+  mm.add({ motion: '(prefers-reduced-motion: no-preference)', wide: '(min-width: 960px) and (min-height: 720px)' }, (ctx) => {
+    const { motion, wide } = ctx.conditions;
+    if (!motion) { markStatic(); return () => { const how = $('#how'); if (how) how.classList.remove('how--static'); }; }
+    initHeroEntrance();
+    initWhy();
+    initFilm();
+    initHowItWorks(wide);
+    initFeatures();
+    initSafety(wide);
+    initArchitecture(wide);
+    initCompare();
+    initFinal();
+    return () => { while (cleanups.length) cleanups.pop()(); };
+  });
+
+  initHeroStick();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+  }
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
